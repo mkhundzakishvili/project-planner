@@ -1,0 +1,165 @@
+<!doctype html>
+<html ng-app="taskApp">
+
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <style type="text/css">
+    .td-middle {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <main ui-view></main>
+  <div ng-controller="TableDemoCtrl" class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>სათაური</th>
+          <th>ტექსტი</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="task in tasks" ng-class="{'bg-success': task.isChecked}"> 
+          <td>
+            <div class="td-middle">
+              {{task.title}}
+            </div>
+          </td>
+          <td>
+            <div class="td-middle">
+              {{task.text}}
+            </div>
+          </td>
+          <td>
+            <div class="btn-group pull-right" role="group" aria-label="...">
+              <button type="button" class="btn" ng-class="{'btn-success': !task.isChecked, 'btn-warning': task.isChecked}"
+                ng-click="toggleCheck(task)">
+                <span class="glyphicon"
+                  ng-class="{'glyphicon-ok': !task.isChecked, 'glyphicon-unchecked': task.isChecked}">
+                </span>
+              </button>
+              <button type="button" class="btn btn-danger" ng-click="removeItem(task)">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+              <button type="button" class="btn btn-primary" ng-click="openEditModal(task)">
+                <span class="glyphicon glyphicon-pencil"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary" type="button" ng-click="openAddModal()">დამატება</button>
+  </div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+<script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.28/angular-ui-router.min.js"></script>
+
+<script>
+  const app = angular.module('taskApp', ['ngSanitize', 'ui.bootstrap', 'ui.router']);
+  app.config(function($stateProvider,$urlRouterProvider){
+      $urlRouterProvider.otherwise('/');
+    $stateProvider
+    .state('home',{
+      url:'/',
+      template:'<h1>homepageee</h1>'
+    })
+    .state('list',{
+      url:'/list',
+      template:'<h1>hello helollllll</h1>'
+    });
+  });
+  app.controller('TableDemoCtrl', function ($uibModal, $log, $scope, $http) {
+    $scope.tasks = [];
+
+    //resolve table
+    function getTasks() {
+      $http.get('/api/tasks').then((response) => { 
+        $scope.tasks = response.data;
+      });
+    }
+
+    getTasks();
+
+    $scope.removeItem = function (task) {
+          //$scope.table.splice(index, 1);
+          $http.delete(`/api/tasks/${task.id}`).then(() =>
+            getTasks());
+        };
+
+    $scope.toggleCheck = function (task) {
+      $http.put(`/api/tasks/check/${task.id}`, { isChecked: !task.isChecked }).then(() => {
+        getTasks();
+      });
+
+    };
+
+    $scope.openAddModal = function () {
+      var addModalInstance = $uibModal.open({
+        templateUrl: 'add-item-modal.html',
+        controller: 'AddItemModalController'
+      });
+
+      addModalInstance.result.then(function (selectedInfo) {
+        $http.post('/api/tasks', selectedInfo).then(() => {
+          getTasks();
+        });
+
+      }, function () {
+        $log.info('Modal dismissed at: ' + new Date());
+      });
+    };
+
+    $scope.openEditModal = function (task) {
+      var editModalInstance = $uibModal.open({
+        templateUrl: 'edit-item-modal.html',
+        controller: 'EditItemModalControler',
+        resolve: {
+          task: () => { return task;}
+        }
+      });
+
+      editModalInstance.result.then(function (editedTask){
+        $http.put(`/api/tasks/${task.id}`,editedTask).then(() => getTasks());
+      }, function() {
+        $log.info(`task with ID:${task.id} edited: ` + new Date())
+      });
+        
+    };
+    
+
+  });
+
+  app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
+
+    $scope.submit = function () {
+      $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+    }
+
+    $scope.cancel = function () {
+      $uibModalInstance.dismiss();
+    }
+  });
+
+  app.controller('EditItemModalControler', function ($uibModalInstance, $scope, task){
+    $scope.title = task.title;
+    $scope.text = task.text;
+    
+
+    $scope.edit = function (){
+      $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+    }
+    $scope.cancel = function () { 
+      $uibModalInstance.dismiss();
+    }
+  });
+</script>
+</body>
+</html>

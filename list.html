@@ -1,0 +1,51 @@
+<div ng-controller="TableDemoCtrl" class="container">
+    <h3>Table</h3>
+    <pre>
+        ორ ველიანი ცხრილი: სათაური და ტექსტი;
+        ღილაკი: "დამატება" - ხსნის მოდალს და დადასტურების შედეგად ემატება ორი ველი.
+        ყველა ელემენტს აქვს ღილაკი X და მეორე
+        მეორეზე დაწოლისას მთელი სტრიქონი უნდა გამწვანდეს და ღილაკი ხდება ყვითელი
+        ყვითელზე დაწოლის შემთხვევაში საწყის დიზაინს უნდა დაუბრუნდეს ღილაკი
+        x შლის სტრიქონს.
+        </pre>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>სათაური</th>
+          <th>ტექსტი</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="task in tasks" ng-class="{'bg-success': task.isChecked}"> 
+          <td>
+            <div class="td-middle">
+              {{task.title}}
+            </div>
+          </td>
+          <td>
+            <div class="td-middle">
+              {{task.text}}
+            </div>
+          </td>
+          <td>
+            <div class="btn-group pull-right" role="group" aria-label="...">
+              <button type="button" class="btn" ng-class="{'btn-success': !task.isChecked, 'btn-warning': task.isChecked}"
+                ng-click="toggleCheck(task)">
+                <span class="glyphicon"
+                  ng-class="{'glyphicon-ok': !task.isChecked, 'glyphicon-unchecked': task.isChecked}">
+                </span>
+              </button>
+              <button type="button" class="btn btn-danger" ng-click="removeItem(task)">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+              <button type="button" class="btn btn-primary" ng-click="openEditModal(task)">
+                <span class="glyphicon glyphicon-pencil"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary" type="button" ng-click="openAddModal()">დამატება</button>
+  </div>
