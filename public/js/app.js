@@ -1,23 +1,24 @@
 const app = angular.module('taskApp', ['ngSanitize', 'ui.bootstrap', 'ui.router']);
-  app.config = (function($stateProvider,$urlRouterProvider){
+  app.config(function($stateProvider, $urlRouterProvider){
       $urlRouterProvider.otherwise('/');
     $stateProvider
     .state('home',{
       url:'/',
-      template:'<h1>this is home page</h1>'
+      template:'index.html'
     })
     .state('list',{
       url:'/list',
-      templateUrl:'../index.html'
+      templateUrl:'list.html'
     });
   });
   app.controller('TableDemoCtrl', function ($uibModal, $log, $scope, $http) {
+    $scope.projects = [];
     $scope.tasks = [];
 
-    //resolve table
+    //
     function getTasks() {
-      $http.get('/api/tasks').then((response) => { 
-        $scope.tasks = response.data;
+      $http.get('/api/projects').then((response) => { 
+        $scope.projects = response.data;
       });
     }
 
@@ -38,7 +39,7 @@ const app = angular.module('taskApp', ['ngSanitize', 'ui.bootstrap', 'ui.router'
 
     $scope.openAddModal = function () {
       var addModalInstance = $uibModal.open({
-        templateUrl: 'add-item-modal.html',
+        templateUrl: '../modal/add-item-modal.html',
         controller: 'AddItemModalController'
       });
 
@@ -54,7 +55,7 @@ const app = angular.module('taskApp', ['ngSanitize', 'ui.bootstrap', 'ui.router'
 
     $scope.openEditModal = function (task) {
       var editModalInstance = $uibModal.open({
-        templateUrl: 'edit-item-modal.html',
+        templateUrl: '../modal/edit-item-modal.html',
         controller: 'EditItemModalControler',
         resolve: {
           task: () => { return task;}

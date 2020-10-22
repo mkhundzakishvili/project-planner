@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //members api routes
-app.use('/api/tasks', require('./routs/api/tasks'));
+app.use('/api/projects', require('./routs/api/tasks'));
 
 const PORT = process.env.PORT || 5000;
 
