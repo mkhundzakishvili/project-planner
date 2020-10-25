@@ -1,5 +1,5 @@
-<div ng-controller="PlannerCtrl" class="container">
+<div class="container">
     <ul class="list-group" >
-        <li class="list-group-item" ng-repeat="project in projects" ng-click=selectProject(project.id)>{{project.name}}</li>
+        <li class="list-group-item" ng-repeat="project in projects"><a ui-sref="tasks({projectId:project.id})">{{project.name}}</a></li>
     </ul>
 </div>

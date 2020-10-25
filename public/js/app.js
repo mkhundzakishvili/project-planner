@@ -1,119 +1,114 @@
 const app = angular.module('plannerApp', ['ngSanitize', 'ui.bootstrap', 'ui.router']);
-  app.config(function($stateProvider, $urlRouterProvider){
-      $urlRouterProvider.otherwise('/');
-    $stateProvider
-    .state('home',{
+app.config(function ($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.otherwise('/');
+  $stateProvider
+    .state('projects', {
       url: '/',
-      templateUrl:'index.html'
+      templateUrl: 'projects.html',
+      controller: 'ProjectsController',
     })
-    .state('projects',{
-      url: '/projects',
-      templateUrl: 'projects.html'
-    })
-    .state('tasks',{
-      url: '/tasks',
-      templateUrl: 'tasks.html'
+    .state('tasks', {
+      url: '/projects/{projectId}/tasks',
+      templateUrl: 'tasks.html',
+      controller: 'TasksController',
     });
-  });
-  app.controller('PlannerCtrl', function ($uibModal, $log, $scope, $http) {
-    $scope.projects = [];
-    $scope.tasks = [];
-    $scope.slctdPrjctId = null;
+});
+app.controller('ProjectsController', function ($scope, $http) {
+  $scope.projects = [];
+  //Get projects
+  function getProjects() {
+    $http.get('/api/projects').then((response) => {
+      $scope.projects = response.data;
+    });
+  }
+  getProjects();
 
-    //Get projects
-    function getProjects() {
-      $http.get('/api/projects').then((response) => { 
-        $scope.projects = response.data;
-      });
-    }
-    getProjects();
-
-    //get selected projects tasks
-    function getTasks(id) {
-      $http.get(`/api/projects/${id}/tasks`).then((response) => { 
-        console.log(response.data);
-        $scope.tasks = response.data;
-      });
-    }
-    getTasks(2);
-
-    $scope.selectProject = function(projectId){
-      $scope.slctdPrjctId = projectId;
-      console.log($scope.slctdPrjctId);
-    }
+});
 
 
+app.controller('TasksController', function ($uibModal, $log, $scope, $http, $stateParams) {
+  $scope.tasks = [];
+  const projectId = $stateParams.projectId;
 
 
-    $scope.removeItem = function (task) {
-          //$scope.table.splice(index, 1);
-          $http.delete(`/api/projects/${$scope.slctdPrjctId}/tasks/${task.id}`).then(() =>
-            getTasks());
-        };
+  //Get selected projects tasks
+  function getTasks() {
+    $http.get(`/api/projects/${projectId}/tasks`).then((response) => {
+      console.log(response.data);
+      $scope.tasks = response.data;
+    });
+  }
 
-    $scope.toggleCheck = function (task) {
-      $http.put(`/api/projects/${$scope.slctdPrjctId}/tasks/check/${task.id}`, { isChecked: !task.isChecked }).then(() => {
+  getTasks();
+
+  $scope.removeItem = function (task) {
+    $http.delete(`/api/projects/${projectId}/tasks/${task.id}`).then(() =>
+      getTasks());
+  };
+
+  $scope.toggleCheck = function (task) {
+    $http.put(`/api/projects/${projectId}/tasks/check/${task.id}`, { isChecked: !task.isChecked }).then(() => {
+      getTasks();
+    });
+
+  };
+
+  $scope.openAddModal = function () {
+    var addModalInstance = $uibModal.open({
+      templateUrl: '../modal/add-item-modal.html',
+      controller: 'AddItemModalController'
+    });
+
+    addModalInstance.result.then(function (selectedInfo) {
+      $http.post(`/api/projects/${projectId}/tasks`, selectedInfo).then(() => {
         getTasks();
       });
 
-    };
+    }, function () {
+      $log.info('Modal dismissed at: ' + new Date());
+    });
+  };
 
-    $scope.openAddModal = function () {
-      var addModalInstance = $uibModal.open({
-        templateUrl: '../modal/add-item-modal.html',
-        controller: 'AddItemModalController'
-      });
+  $scope.openEditModal = function (task) {
+    var editModalInstance = $uibModal.open({
+      templateUrl: '../modal/edit-item-modal.html',
+      controller: 'EditItemModalControler',
+      resolve: {
+        task: () => { return task; }
+      }
+    });
 
-      addModalInstance.result.then(function (selectedInfo) {
-        $http.post(`/api/projects/${$scope.slctdPrjctId}/tasks`, selectedInfo).then(() => {
-          getTasks();
-        });
+    editModalInstance.result.then(function (editedTask) {
+      $http.put(`/api/projects/${projectId}/tasks/${task.id}`, editedTask).then(() => getTasks());
+    }, function () {
+      $log.info(`task with ID:${task.id} edited: ` + new Date())
+    });
 
-      }, function () {
-        $log.info('Modal dismissed at: ' + new Date());
-      });
-    };
+  };
 
-    $scope.openEditModal = function (task) {
-      var editModalInstance = $uibModal.open({
-        templateUrl: '../modal/edit-item-modal.html',
-        controller: 'EditItemModalControler',
-        resolve: {
-          task: () => { return task;}
-        }
-      });
 
-      editModalInstance.result.then(function (editedTask){
-        $http.put(`/api/projects/${$scope.slctdPrjctId}/tasks/${task.id}`,editedTask).then(() => getTasks());
-      }, function() {
-        $log.info(`task with ID:${task.id} edited: ` + new Date())
-      });
-        
-    };
-    
+});
 
-  });
+app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
 
-  app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
+  $scope.submit = function () {
+    $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+  }
 
-    $scope.submit = function () {
-      $uibModalInstance.close({ title: $scope.title, text: $scope.text });
-    }
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  }
+});
 
-    $scope.cancel = function () {
-      $uibModalInstance.dismiss();
-    }
-  });
+app.controller('EditItemModalControler', function ($uibModalInstance, $scope, task) {
+  $scope.title = task.title;
+  $scope.text = task.text;
 
-  app.controller('EditItemModalControler', function ($uibModalInstance, $scope, task){
-    $scope.title = task.title;
-    $scope.text = task.text;
-    
 
-    $scope.edit = function (){
-      $uibModalInstance.close({ title: $scope.title, text: $scope.text });
-    }
-    $scope.cancel = function () { 
-      $uibModalInstance.dismiss();
-    }
-  });
+  $scope.edit = function () {
+    $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+  }
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  }
+});
