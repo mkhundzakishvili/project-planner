@@ -1,5 +1,27 @@
 <div class="container">
-    <ul class="list-group" >
-        <li class="list-group-item" ng-repeat="project in projects"><a ui-sref="tasks({projectId:project.id})">{{project.name}}</a></li>
-    </ul>
-</div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>სათაური</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="project in projects"> 
+          <td>
+            <div class="td-middle">
+                <a ui-sref="tasks">{{project.name}}</a>
+            </div>
+          </td>
+          <td>
+            <div class="pull-right" role="group" aria-label="...">
+              <button type="button" class="btn btn-primary" ng-click="openEditProjectModal(project)">
+                <span class="glyphicon glyphicon-pencil"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary" type="button" ng-click="openAddProjectModal()">დამატება</button>
+  </div>

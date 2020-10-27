@@ -4,13 +4,53 @@ const router = express.Router();
 const getTasks = require('../../Projects').getTasks;
 const setTasks = require('../../Projects').setTasks;
 const getProjects = require('../../Projects').getProjects;
+const setProjects = require('../../Projects').setProjects;
 
 
 //Get all projects
 router.get('/', (req, res) =>{
-    const Projects = getProjects();
+    const projects = getProjects();
 
-    res.json(Projects);
+    res.json(projects);
+});
+
+//Create new Project
+router.post('/',(req, res) => {
+    const projects = getProjects();
+
+    const newProject = {
+        id: uuid.v4(),
+        name: req.body.name,
+        tasks:[]
+    };
+
+    if(!newProject.name){
+        return res.status(400).json({msg: 'please include a name'});
+    }
+
+    projects.push(newProject);
+    setProjects(projects);
+    res.json(projects);
+});
+
+//Edit project
+router.put('/:id', (req, res) => {
+    const projects = getProjects();
+
+    const found = projects.some(project => project.id === req.params.id);
+
+    if(found){
+        const editProject = req.body;
+
+        projects.forEach(project => {
+            if(project.id === req.params.id){
+                project.name = editProject.name;
+            } 
+        });
+        setProjects(projects);
+        res.json({msg: 'project has been edited'});
+    }
+
 });
 
 //Get certain projects' tasks
@@ -22,9 +62,9 @@ router.get('/:projectId/tasks',(req, res) => {
 //get single task
 router.get('/:projectId/tasks/:taskId', (req, res) => {
     const tasks = getTasks(req.params.projectId);
-    console.log(tasks);
+    
     const found = tasks.some(task => task.id === req.params.taskId);
-    console.log(found);
+    
     if(found){
         res.json(tasks.filter(task => task.id === req.params.taskId));
     } else {
@@ -48,6 +88,7 @@ router.post('/:projectId/tasks', (req, res) => {
     }
 
     tasks.push(newTask);
+    setTasks(tasks,req.params.projectId);
     res.json(tasks);
     
 });

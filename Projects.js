@@ -55,6 +55,9 @@ function getProjects(){
     return projects;
 }
  
+function setProjects(newProjects){
+    projects = newProjects;
+}
 
 function getTasks(id){
     let tasks = null;
@@ -66,16 +69,18 @@ function getTasks(id){
     return tasks;
 }
 
-function setTasks(tasksObject, id){
+function setTasks(tasksObject, projectId){
     projects.forEach(project => {
-        if(project.id === parseInt(id)){
+        if(project.id === parseInt(projectId)){
             project.tasks = tasksObject;
         }
     });
 }
 
+
 module.exports = {
     getProjects,
     getTasks,
-    setTasks
+    setTasks,
+    setProjects
 };

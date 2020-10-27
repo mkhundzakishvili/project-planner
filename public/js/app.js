@@ -13,7 +13,8 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       controller: 'TasksController',
     });
 });
-app.controller('ProjectsController', function ($scope, $http) {
+
+app.controller('ProjectsController', function ($scope, $http, $uibModal, $log) {
   $scope.projects = [];
   //Get projects
   function getProjects() {
@@ -23,7 +24,63 @@ app.controller('ProjectsController', function ($scope, $http) {
   }
   getProjects();
 
+  $scope.openAddProjectModal = function () {
+    var addModalInstance = $uibModal.open({
+      templateUrl: '../modal/add-project-modal.html',
+      controller: 'AddProjectModalController'
+    });
+
+    addModalInstance.result.then(function (selectedInfo) {
+      $http.post(`/api/projects`, selectedInfo).then(() => {
+        getProjects();
+      });
+
+    }, function () {
+      $log.info('Modal dismissed at: ' + new Date());
+    });
+  };
+
+  $scope.openEditProjectModal = function (project) {
+    var editModalInstance = $uibModal.open({
+      templateUrl: '../modal/edit-project-modal.html',
+      controller: 'EditProjectModalController',
+      resolve: {
+        project: () => { return project; }
+      }
+    });
+
+    editModalInstance.result.then(function (editedProject) {
+      $http.put(`/api/projects/${project.id}`, editedProject).then(() => getProjects());
+    }, function () {
+      $log.info(`project with ID:${project.id} edited: ` + new Date())
+    });
+
+  };
+
 });
+
+app.controller('AddProjectModalController', function ($uibModalInstance, $scope) {
+
+  $scope.submit = function () {
+    $uibModalInstance.close({ name: $scope.name });
+  }
+
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  }
+});
+
+app.controller('EditProjectModalController', function ($uibModalInstance, $scope, project) {
+  $scope.name = project.name;
+
+  $scope.edit = function () {
+    $uibModalInstance.close({ name: $scope.name });
+  }
+  $scope.cancel = function () {
+    $uibModalInstance.dismiss();
+  }
+});
+
 
 
 app.controller('TasksController', function ($uibModal, $log, $scope, $http, $stateParams) {
@@ -50,7 +107,6 @@ app.controller('TasksController', function ($uibModal, $log, $scope, $http, $sta
     $http.put(`/api/projects/${projectId}/tasks/check/${task.id}`, { isChecked: !task.isChecked }).then(() => {
       getTasks();
     });
-
   };
 
   $scope.openAddModal = function () {
@@ -72,7 +128,7 @@ app.controller('TasksController', function ($uibModal, $log, $scope, $http, $sta
   $scope.openEditModal = function (task) {
     var editModalInstance = $uibModal.open({
       templateUrl: '../modal/edit-item-modal.html',
-      controller: 'EditItemModalControler',
+      controller: 'EditItemModalController',
       resolve: {
         task: () => { return task; }
       }
@@ -100,7 +156,7 @@ app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
   }
 });
 
-app.controller('EditItemModalControler', function ($uibModalInstance, $scope, task) {
+app.controller('EditItemModalController', function ($uibModalInstance, $scope, task) {
   $scope.title = task.title;
   $scope.text = task.text;
 
