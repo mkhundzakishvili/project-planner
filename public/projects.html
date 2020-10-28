@@ -9,13 +9,13 @@
       <tbody>
         <tr ng-repeat="project in projects"> 
           <td>
-            <div class="td-middle">
-                <a ui-sref="tasks">{{project.name}}</a>
+            <div class="td-middle project" ui-sref="tasks({projectId:project.id})"> 
+                {{project.name}}
             </div>
           </td>
           <td>
             <div class="pull-right" role="group" aria-label="...">
-              <button type="button" class="btn btn-primary" ng-click="openEditProjectModal(project)">
+              <button type="button" class="btn btn-primary btn-block" ng-click="openEditProjectModal(project)">
                 <span class="glyphicon glyphicon-pencil"></span>
               </button>
             </div>

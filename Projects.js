@@ -1,6 +1,6 @@
 let projects = [
     {
-        id: 1,
+        id: "1",
         name: 'project 1',
         tasks: [
                     {
@@ -24,7 +24,7 @@ let projects = [
                 ]
     },
     {
-        id: 2,
+        id: "2",
         name: 'project 2',
         tasks: [
                     {
@@ -46,6 +46,11 @@ let projects = [
                         isChecked: true
                     }
                 ] 
+    },
+    {
+        id: "3",
+        name: "project 3",
+        tasks: []
     }
 ];
 
@@ -59,10 +64,10 @@ function setProjects(newProjects){
     projects = newProjects;
 }
 
-function getTasks(id){
+function getTasks(projectId){
     let tasks = null;
     projects.forEach((project) => {
-        if(project.id === parseInt(id)){ 
+        if(project.id === projectId){ 
             tasks = project.tasks;
         }
     });
@@ -71,7 +76,7 @@ function getTasks(id){
 
 function setTasks(tasksObject, projectId){
     projects.forEach(project => {
-        if(project.id === parseInt(projectId)){
+        if(project.id === projectId){
             project.tasks = tasksObject;
         }
     });

@@ -85,13 +85,12 @@ app.controller('EditProjectModalController', function ($uibModalInstance, $scope
 
 app.controller('TasksController', function ($uibModal, $log, $scope, $http, $stateParams) {
   $scope.tasks = [];
-  const projectId = $stateParams.projectId;
+  let projectId = $stateParams.projectId;
 
 
   //Get selected projects tasks
   function getTasks() {
     $http.get(`/api/projects/${projectId}/tasks`).then((response) => {
-      console.log(response.data);
       $scope.tasks = response.data;
     });
   }
@@ -104,10 +103,15 @@ app.controller('TasksController', function ($uibModal, $log, $scope, $http, $sta
   };
 
   $scope.toggleCheck = function (task) {
-    $http.put(`/api/projects/${projectId}/tasks/check/${task.id}`, { isChecked: !task.isChecked }).then(() => {
+    $http.put(`/api/projects/${projectId}/tasks/${task.id}/check`, { isChecked: !task.isChecked }).then(() => {
       getTasks();
     });
   };
+
+  $scope.clearTasks = function(){
+    $scope.tasks = [];
+    projectId = null;
+  }
 
   $scope.openAddModal = function () {
     var addModalInstance = $uibModal.open({

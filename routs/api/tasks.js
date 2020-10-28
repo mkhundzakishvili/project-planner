@@ -49,6 +49,8 @@ router.put('/:id', (req, res) => {
         });
         setProjects(projects);
         res.json({msg: 'project has been edited'});
+    } else {
+        res.json({msg: 'project wasn\'t found'});
     }
 
 });
@@ -85,12 +87,15 @@ router.post('/:projectId/tasks', (req, res) => {
 
     if(!newTask.title || !newTask.text){
         return res.status(400).json({msg: 'please include a title and text'});
+    }else{
+        if(tasks === null){
+            setTasks(newTask, req.params.projectId);
+        } else{
+            tasks.push(newTask);
+            setTasks(tasks, req.params.projectId);
+            res.json(tasks);
+        }
     }
-
-    tasks.push(newTask);
-    setTasks(tasks,req.params.projectId);
-    res.json(tasks);
-    
 });
 
 
@@ -118,20 +123,21 @@ router.put('/:projectId/tasks/:taskId', (req, res) => {
 
 //Check Task
 router.put('/:projectId/tasks/:taskId/check', (req, res) => {
-    const tasks = getTasks(req.params.projectId);
-
+    let tasks = getTasks(req.params.projectId);
     const found = tasks.some(task => task.id === req.params.taskId);
     
     if(found){
         const checkTask = req.body;
+        
         tasks.forEach(task =>{
             if(task.id === req.params.taskId){
                 task.isChecked = checkTask.isChecked;
-            
+        
                 res.json({msg: 'task is checked', task});
             }
         });
-        setTasks(tasks,req.params.projectId);
+        setTasks(tasks, req.params.projectId);
+        
     } else {
         res.status(400).json({ msg: `არ არსებობს ამ ID - ით წევრი!`});
     }
