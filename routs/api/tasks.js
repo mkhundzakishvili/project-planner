@@ -140,7 +140,7 @@ router.post('/:projectId/tasks', (req, res) => {
                     });
                 } else {
                     tasks.push(newTask);
-                    setTasks(newTask, req.params.projectId, ()=>{
+                    setTasks(tasks, req.params.projectId, ()=>{
                         res.json(newTask);
                     });
                     
@@ -148,7 +148,6 @@ router.post('/:projectId/tasks', (req, res) => {
             }
     });
 });
-
 
 //Edit task
 router.put('/:projectId/tasks/:taskId', (req, res) => {
