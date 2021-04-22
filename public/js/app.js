@@ -24,6 +24,12 @@ app.controller('ProjectsController', function ($scope, $http, $uibModal, $log) {
   }
   getProjects();
 
+  $scope.removeProject = function (project) {
+    $http.delete(`/api/projects/${project.id}`).then(() => {
+      getProjects();
+    });
+  }
+
   $scope.openAddProjectModal = function () {
     var addModalInstance = $uibModal.open({
       templateUrl: '../modal/add-project-modal.html',
@@ -108,7 +114,7 @@ app.controller('TasksController', function ($uibModal, $log, $scope, $http, $sta
     });
   };
 
-  $scope.clearTasks = function(){
+  $scope.clearTasks = function () {
     $scope.tasks = [];
     projectId = null;
   }
@@ -152,7 +158,7 @@ app.controller('TasksController', function ($uibModal, $log, $scope, $http, $sta
 app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
 
   $scope.submit = function () {
-    $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+    $uibModalInstance.close({ title: $scope.title, description: $scope.description });
   }
 
   $scope.cancel = function () {
@@ -162,11 +168,11 @@ app.controller('AddItemModalController', function ($uibModalInstance, $scope) {
 
 app.controller('EditItemModalController', function ($uibModalInstance, $scope, task) {
   $scope.title = task.title;
-  $scope.text = task.text;
+  $scope.description = task.description;
 
 
   $scope.edit = function () {
-    $uibModalInstance.close({ title: $scope.title, text: $scope.text });
+    $uibModalInstance.close({ title: $scope.title, description: $scope.description });
   }
   $scope.cancel = function () {
     $uibModalInstance.dismiss();

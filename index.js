@@ -6,20 +6,15 @@ const logger = require('./middleware/logger');
 
 
 
-const app = express(); 
+const app = express();
 
 // init middlewere
 app.use(logger);
 
 //Handlebars MIddleware
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
-//Homepage Route
-// app.get('/', (req, res) => res.render('index', {
-//     title: 'Member App',
-//     members
-// }));
 
 //body parser middleware
 app.use(express.json());
@@ -29,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //members api routes
-app.use('/api/projects', require('./routs/api/tasks'));
+app.use('/api/projects', require('./routes/api/tasks'));
 
 const PORT = process.env.PORT || 5000;
 

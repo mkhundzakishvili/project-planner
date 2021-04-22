@@ -15,8 +15,14 @@
           </td>
           <td>
             <div class="pull-right" role="group" aria-label="...">
-              <button type="button" class="btn btn-primary btn-block" ng-click="openEditProjectModal(project)">
+              
+            </div>
+            <div class="btn-group pull-right" role="group" aria-label="...">
+              <button type="button" class="btn btn-primary" ng-click="openEditProjectModal(project)">
                 <span class="glyphicon glyphicon-pencil"></span>
+              </button>
+              <button type="button" class="btn btn-danger" ng-click="removeProject(project)">
+                <span class="glyphicon glyphicon-remove"></span>
               </button>
             </div>
           </td>
